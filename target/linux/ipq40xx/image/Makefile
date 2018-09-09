@@ -56,6 +56,10 @@ define Device/8dev_jalapeno
 endef
 TARGET_DEVICES += 8dev_jalapeno
 
+define Build/copy-file
+	cat "$(1)" > "$@"
+endef
+
 define Device/asus_rt-ac58u
 	$(call Device/FitImageLzma)
 	DEVICE_DTS := qcom-ipq4018-rt-ac58u
@@ -71,7 +75,9 @@ define Device/asus_rt-ac58u
 #	to add a version... or we are very careful not to add '\0' into that
 #	string and call it a day.... Yeah, we do the latter!
 	UIMAGE_NAME:=$(shell echo -e '\03\01\01\01RT-AC58U')
-	IMAGES := sysupgrade.bin
+	IMAGES := sysupgrade.bin sysupgrade.tar flash-factory.trx
+	IMAGE/flash-factory.trx := copy-file $(KDIR)/tmp/$$(KERNEL_INITRAMFS_IMAGE) | uImage none
+IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
 	DEVICE_PACKAGES := kmod-usb-ledtrig-usbport
 endef
 TARGET_DEVICES += asus_rt-ac58u
